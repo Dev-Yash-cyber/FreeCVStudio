@@ -1,0 +1,38 @@
+services:
+  # Backend API Web Service
+  - type: web
+    name: freecv-studio-api
+    runtime: docker
+    dockerContext: ./server
+    dockerfilePath: ./server/Dockerfile
+    plan: free
+    region: oregon
+    envVars:
+      - key: PORT
+        value: 5001
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        sync: false
+      - key: AI_PROVIDER
+        value: built-in
+
+  # Frontend Static Site
+  - type: static_site
+    name: freecv-studio
+    runtime: static
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: ./client/dist
+    plan: free
+    region: oregon
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        sync: false
